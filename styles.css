@@ -1,6 +1,9 @@
 @charset("UTF-8");
+* {
+    font-family: "M PLUS 2", sans-serif;
+    font-optical-sizing: auto;
+}
 #clock {
-    font-family: "Courier New", Courier, monospace;
     font-size: 11rem;
     font-weight: bold;
     letter-spacing: .1rem;
@@ -10,7 +13,6 @@
     padding: 1rem;
 }
 #date {
-    font-family: "Courier New", Courier, monospace;
     font-size: 4.5rem;
     font-weight: bold;
     letter-spacing: .1rem;
