@@ -1,7 +1,7 @@
 @charset("UTF-8");
 #clock {
     font-family: "Courier New", Courier, monospace;
-    font-size: 12rem;
+    font-size: 11rem;
     font-weight: bold;
     letter-spacing: .1rem;
 
@@ -39,5 +39,5 @@ main {
     padding: .5rem;
     /*角丸ボタンにする*/
     border-radius: 1mm;
-    background-color: #303031;
+    background-color: #707071;
 }
