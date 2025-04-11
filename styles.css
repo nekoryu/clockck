@@ -1,16 +1,18 @@
 @charset("UTF-8");
 * {
-    font-family: "M PLUS 2", sans-serif;
-    font-optical-sizing: auto;
+    font-family: "BIZ UDPMincho", serif;
 }
 #clock {
-    font-size: 11rem;
+    font-size: 10rem;
     font-weight: bold;
     letter-spacing: .1rem;
 
     color: #fefefe;
     text-align: center;
-    padding: 1rem;
+    vertical-align: middle;
+    /* padding: 0 1rem; */
+    height: 65vh;
+    /* display: flex; */
 }
 #date {
     font-size: 4.5rem;
@@ -19,12 +21,13 @@
 
     color: #ababec;
     text-align: center;
-    margin-top: 10px;
+    height: 15vh;
+    /* display: flex; */
 }
 body {
     background-color: #000001;
-    display: flex;
-    flex-direction: column;
+    /* display: flex; */
+    /* flex-direction: column; */
     align-items: center;
     justify-content: center;
     height: 100vh;
@@ -36,6 +39,7 @@ main {
 #full-scr {
     text-align: right;
     margin: 1rem;
+    height: 10vh;
 }
 #full-scr-btn {
     padding: .5rem;
