@@ -1,16 +1,20 @@
 @charset("UTF-8");
 #clock {
     font-family: "Courier New", Courier, monospace;
-    font-size: 4em;
+    font-size: 12rem;
     font-weight: bold;
+    letter-spacing: .1rem;
+
     color: #fefefe;
     text-align: center;
-    margin-top: 20%;
+    padding: 1rem;
 }
 #date {
     font-family: "Courier New", Courier, monospace;
-    font-size: 1.5em;
+    font-size: 4.5rem;
     font-weight: bold;
+    letter-spacing: .1rem;
+
     color: #ababec;
     text-align: center;
     margin-top: 10px;
@@ -23,4 +27,17 @@ body {
     justify-content: center;
     height: 100vh;
     margin: 0;
+}
+main {
+    width: 100%;
+}
+#full-scr {
+    text-align: right;
+    margin: 1rem;
+}
+#full-scr-btn {
+    padding: .5rem;
+    /*角丸ボタンにする*/
+    border-radius: 1mm;
+    background-color: #303031;
 }
