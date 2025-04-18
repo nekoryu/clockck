@@ -1,0 +1,19 @@
+{
+    "name": "CLOCKCK",
+    "icons": [
+      {
+        "src": "./clockck192.png",
+        "sizes": "192x192",
+        "type": "image/png"
+      },
+      {
+        "src": "./clockck512.png",
+        "sizes": "512x512",
+        "type": "image/png"
+      }
+    ],
+    "start_url": "./index.html",
+    "display": "fullscreen",
+    "background_color": "#000001",
+    "theme_color": "#efefef"
+}

@@ -1,4 +1,4 @@
-@charset("UTF-8");
+@charset 'UTF-8';
 * {
     font-family: "BIZ UDPMincho", serif;
 }
@@ -11,7 +11,7 @@
     text-align: center;
     vertical-align: middle;
     /* padding: 0 1rem; */
-    height: 65vh;
+    height: 62vh;
     /* display: flex; */
 }
 #date {
@@ -21,7 +21,7 @@
 
     color: #ababec;
     text-align: center;
-    height: 15vh;
+    height: 18vh;
     /* display: flex; */
 }
 body {
