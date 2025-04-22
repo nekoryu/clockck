@@ -11,8 +11,23 @@
     text-align: center;
     vertical-align: middle;
     /* padding: 0 1rem; */
-    height: 62vh;
+    height: 52vh;
     /* display: flex; */
+}
+#weather-area {
+    font-size: 3.1rem;
+    text-align: center;
+    height: 14vh;
+}
+#weather {
+    font-size: 3.1rem;
+    font-weight: bold;
+    color: #abcaab;
+}
+#weather-placeName {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #727272;
 }
 #date {
     font-size: 4.5rem;
