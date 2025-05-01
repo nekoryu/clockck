@@ -11,7 +11,17 @@ $(function () {
     setInterval(getClock, interval);
 
     $('#full-scr-btn').on('click', function (e) {
-        document.body.requestFullscreen();
+        if (document.body.requestFullscreen) {
+            document.body.requestFullscreen();
+        } else if (document.body.webkitRequestFullscreen) { // Chromeの古いバージョン用
+            document.body.webkitRequestFullscreen();
+        } else if (document.body.mozRequestFullScreen) { // Firefox用
+            document.body.mozRequestFullScreen();
+        } else if (document.body.msRequestFullscreen) { // IE/Edge用
+            document.body.msRequestFullscreen();
+        } else {
+            console.error('フルスクリーンモードはこのブラウザでサポートされていません。');
+        }
     });
 
     function getWeather() {
@@ -51,7 +61,7 @@ $(function () {
                     // weatherPlaceName.text(`${placeName}`);
 
                 } catch (e) {
-                    console.error('天気データのパース中にエラーが発生しました:', e);
+                    weather.text('天気データのパース中にエラーが発生しました');
                 }
             } else {
                 // エラーレスポンスの場合（例: 401 Unauthorized, 403 Forbidden, 400 Bad Request など）
@@ -64,14 +74,14 @@ $(function () {
                 } catch(e) {
                     // レスポンスがJSONでない場合のエラーは無視
                 }
-                console.error('天気データの取得中にエラーが発生しました:', errorMessage);
+                weather.text('天気データの取得中にエラーが発生しました:' + errorMessage);
                 // エラーメッセージをユーザーに表示するなどの処理
             }
         };
         
         // リクエスト中のエラー処理（ネットワークエラーなど）
         xhr.onerror = function() {
-            console.error('ネットワークエラーが発生しました。');
+            weather.text('ネットワークエラーが発生しました。');
             // ネットワークエラーメッセージをユーザーに表示するなどの処理
         };
         
