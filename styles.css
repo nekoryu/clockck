@@ -1,65 +1,85 @@
 @charset 'UTF-8';
+
+/* 全体のフォント設定 */
 * {
     font-family: "BIZ UDPMincho", serif;
+    box-sizing: border-box;
 }
+
+body {
+    background-color: #000001;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    margin: 0;
+}
+
+main {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem; /* 要素間の余白 */
+    width: 100%;
+    padding: 1rem;
+    text-align: center;
+}
+
+/* 時計 */
 #clock {
-    font-size: 8rem;
+    font-size: clamp(4rem, 10vw, 10rem);
     font-weight: bold;
     letter-spacing: .1rem;
-
     color: #fefefe;
-    text-align: center;
-    vertical-align: top;
     margin: 0;
-    /* padding: 0 1rem; */
-    height: 39vh;
-    /* display: flex; */
+    line-height: 1.2;
 }
+
+/* 天気エリア */
 #weather-area {
-    font-size: 3.1rem;
-    text-align: center;
-    height: 14vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: .3rem;
 }
+
 #weather {
-    font-size: 3.1rem;
+    font-size: clamp(1.5rem, 4vw, 3.1rem);
     font-weight: bold;
     color: #abcaab;
 }
+
 #weather-placeName {
-    font-size: 1.5rem;
+    font-size: clamp(1rem, 2vw, 1.5rem);
     font-weight: bold;
     color: #727272;
 }
+
+/* 日付 */
 #date {
-    font-size: 4.5rem;
+    font-size: clamp(2rem, 5vw, 4.5rem);
     font-weight: bold;
     letter-spacing: .1rem;
-
     color: #ababec;
-    text-align: center;
-    height: 18vh;
-    /* display: flex; */
-}
-body {
-    background-color: #000001;
-    /* display: flex; */
-    /* flex-direction: column; */
-    align-items: center;
-    justify-content: center;
-    height: 100vh;
     margin: 0;
+    line-height: 1.2;
 }
-main {
-    width: 100%;
-}
+
+/* フルスクリーンボタン */
 #full-scr {
-    text-align: right;
-    margin: 1rem;
-    height: 10vh;
+    align-self: flex-end;
 }
+
 #full-scr-btn {
-    padding: .5rem;
-    /*角丸ボタンにする*/
-    border-radius: 1mm;
+    padding: .5rem 1rem;
+    border-radius: 4px;
     background-color: #707071;
+    color: #fff;
+    border: none;
+    cursor: pointer;
+}
+
+#full-scr-btn:hover {
+    background-color: #5a5a5b;
 }
