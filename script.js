@@ -10,7 +10,8 @@ $(function () {
     let interval = 1000; // 1 second
     setInterval(getClock, interval);
 
-    $('#full-scr-btn').on('click', function (e) {
+    // $('#full-scr-btn').on('click', function (e) {
+    $('main').on('click', function (e) {
         if (document.body.requestFullscreen) {
             document.body.requestFullscreen();
         } else if (document.body.webkitRequestFullscreen) { // Chromeの古いバージョン用

@@ -68,7 +68,8 @@ main {
 
 /* フルスクリーンボタン */
 #full-scr {
-    align-self: flex-end;
+    /* align-self: flex-end; */
+    display: none;
 }
 
 #full-scr-btn {
