@@ -2,38 +2,52 @@
 
 /* 全体のフォント設定 */
 * {
-    font-family: "BIZ UDPMincho", serif;
+    font-family: "M PLUS 2", sans-serif;
     box-sizing: border-box;
 }
 
-body {
+html, body {
+    width: 100%;
+    height: 100%;
     background-color: #000001;
+    margin: 0;
+    padding: 0;
+    overflow: hidden; /* スクロールバー・バウンス非表示 */
+}
+
+main {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 2400px;
+    height: 1080px;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    min-height: 100vh;
-    margin: 0;
+    gap: 30px;
+    padding: 30px;
+    text-align: center;
+    transform-origin: top left;
 }
 
-main {
+/* 日付・時刻エリア */
+#datetime-area {
     display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 1rem; /* 要素間の余白 */
-    width: 100%;
-    padding: 1rem;
-    text-align: center;
+    flex-direction: row;
+    align-items: baseline;
+    justify-content: center;
+    gap: 80px;
 }
 
 /* 時計 */
 #clock {
-    font-size: clamp(4rem, 10vw, 10rem);
+    font-size: 380px;
     font-weight: bold;
-    letter-spacing: .1rem;
+    letter-spacing: 12px;
     color: #fefefe;
     margin: 0;
-    line-height: 1.2;
+    line-height: 1;
 }
 
 /* 天気エリア */
@@ -41,46 +55,44 @@ main {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: .3rem;
+    gap: 15px;
 }
 
 #weather {
-    font-size: clamp(2rem, 5vw, 4.7rem);
+    font-size: 140px;
     font-weight: bold;
     color: #abcaab;
 }
 
 #weather-placeName {
-    font-size: clamp(1rem, 2vw, 1.5rem);
+    font-size: 60px;
     font-weight: bold;
     color: #727272;
 }
 
 /* 日付 */
 #date {
-    font-size: clamp(3rem, 7.5vw, 6rem);
+    font-size: 220px;
     font-weight: bold;
-    letter-spacing: .1rem;
+    letter-spacing: 10px;
     color: #ababec;
     margin: 0;
-    line-height: 1.2;
+    line-height: 1.1;
 }
 
-/* フルスクリーンボタン */
+/* フルスクリーンボタン（一旦非表示または元のまま） */
 #full-scr {
-    /* align-self: flex-end; */
     display: none;
 }
-
 #full-scr-btn {
-    padding: .5rem 1rem;
-    border-radius: 4px;
+    padding: 15px 30px;
+    font-size: 30px;
+    border-radius: 8px;
     background-color: #707071;
     color: #fff;
     border: none;
     cursor: pointer;
 }
-
 #full-scr-btn:hover {
     background-color: #5a5a5b;
 }

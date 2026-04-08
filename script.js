@@ -1,4 +1,13 @@
 $(function () {
+    // 画面サイズに合わせてストレッチ（拡縮）させる処理
+    function updateScale() {
+        const scaleX = window.innerWidth / 2400;
+        const scaleY = window.innerHeight / 1080;
+        $('main').css('transform', `scale(${scaleX}, ${scaleY})`);
+    }
+    updateScale();
+    $(window).on('resize', updateScale);
+
     function getClock() {
         let clock = $("#clock");
         let date = $("#date");
@@ -7,7 +16,7 @@ $(function () {
         date.text(time.toLocaleDateString([], { month: '2-digit', day: '2-digit', weekday: 'short' }));
     }
     getClock(); // 初回実行
-    let interval = 1000; // 1 second
+    let interval = 10000; // 10000 ミリ秒 = 10 秒
     setInterval(getClock, interval);
 
     // $('#full-scr-btn').on('click', function (e) {
@@ -41,7 +50,7 @@ $(function () {
         xhr.open('GET', apiUrl, true); // メソッド, URL, 非同期フラグ
 
         // レスポンスを受け取ったときの処理
-        xhr.onload = function() {
+        xhr.onload = function () {
             if (xhr.status >= 200 && xhr.status < 400) {
                 // リクエストが成功した場合
                 try {
@@ -72,20 +81,20 @@ $(function () {
                     if (errorData && errorData.error) {
                         errorMessage += `, Code: ${errorData.error.code}, Message: ${errorData.error.message}`;
                     }
-                } catch(e) {
+                } catch (e) {
                     // レスポンスがJSONでない場合のエラーは無視
                 }
                 weather.text('天気データの取得中にエラーが発生しました:' + errorMessage);
                 // エラーメッセージをユーザーに表示するなどの処理
             }
         };
-        
+
         // リクエスト中のエラー処理（ネットワークエラーなど）
-        xhr.onerror = function() {
+        xhr.onerror = function () {
             weather.text('ネットワークエラーが発生しました。');
             // ネットワークエラーメッセージをユーザーに表示するなどの処理
         };
-        
+
         // リクエストを送信
         xhr.send();
     }
