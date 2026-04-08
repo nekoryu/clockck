@@ -13,7 +13,11 @@ $(function () {
         let date = $("#date");
         let time = new Date();
         clock.text(time.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }));
-        date.text(time.toLocaleDateString([], { month: '2-digit', day: '2-digit', weekday: 'short' }));
+        let MM = String(time.getMonth() + 1).padStart(2, '0');
+        let DD = String(time.getDate()).padStart(2, '0');
+        let weekdays = ['日', '月', '火', '水', '木', '金', '土'];
+        let w = weekdays[time.getDay()];
+        date.text(`${MM}/${DD} ${w}`);
     }
     getClock(); // 初回実行
     let interval = 10000; // 10000 ミリ秒 = 10 秒
