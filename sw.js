@@ -1,4 +1,4 @@
-var CACHE_NAME = 'clockck-v5'; // スケーリング異常修正版
+var CACHE_NAME = 'clockck-v14'; // APIキーとロケーションのデフォルト値設定版
 var urlsToCache = [
     './',
     './index.html',

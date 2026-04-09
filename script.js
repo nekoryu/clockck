@@ -1,121 +1,240 @@
 document.addEventListener('DOMContentLoaded', () => {
-    // PWA（スタンドアロンまたはフルスクリーンモード）で起動しているか判定
+    // --- 状態管理 (localStorage) ---
+    const STORAGE_KEYS = {
+        API_KEY: 'clockck_api_key',
+        LOCATION: 'clockck_location',
+        DISPLAY_TYPE: 'clockck_display_type',
+        WEATHER_CACHE: 'clockck_weather_cache',
+        WEATHER_CACHE_TIME: 'clockck_weather_cache_time'
+    };
+
+    const getStore = (key) => {
+        const val = localStorage.getItem(key);
+        if (val) return val;
+        // デフォルト値
+        if (key === STORAGE_KEYS.API_KEY) return 'a891eb341dae437fba441934252204';
+        if (key === STORAGE_KEYS.LOCATION) return 'Sapporo';
+        return '';
+    };
+    const setStore = (key, val) => localStorage.setItem(key, val);
+
+    // --- PWA判定 ---
     function isPWA() {
         return window.matchMedia('(display-mode: standalone)').matches ||
-               window.matchMedia('(display-mode: fullscreen)').matches ||
-               window.navigator.standalone;
+            window.matchMedia('(display-mode: fullscreen)').matches ||
+            window.navigator.standalone;
     }
 
-    // 画面サイズに合わせてストレッチ（拡縮）させる処理
+    // --- スケーリング処理 ---
     const mainElement = document.querySelector('main');
     function updateScale() {
         if (!mainElement) return;
-        
-        // window.innerWidth よりも documentElement.clientWidth の方が
-        // モバイルブラウザのアドレスバー等の影響を受けにくく正確な場合があります
         const viewWidth = document.documentElement.clientWidth || window.innerWidth;
         const viewHeight = document.documentElement.clientHeight || window.innerHeight;
-
         if (viewWidth === 0 || viewHeight === 0) return;
 
-        const scaleX = viewWidth / 2400;
-        const scaleY = viewHeight / 1080;
+        let baseWidth, baseHeight;
+        if (viewHeight > viewWidth) {
+            baseWidth = 1080; baseHeight = 2400;
+        } else {
+            baseWidth = 2400; baseHeight = 1080;
+        }
+
+        const scaleX = viewWidth / baseWidth;
+        const scaleY = viewHeight / baseHeight;
         mainElement.style.transform = `scale(${scaleX}, ${scaleY})`;
     }
 
-    // スケーリングの多段実行（起動時の安定化）
     updateScale();
-    setTimeout(updateScale, 300); // 300ms後に再計算
-    setTimeout(updateScale, 1000); // 1秒後にも念押しで再計算
-    window.addEventListener('load', updateScale);
     window.addEventListener('resize', updateScale);
     window.addEventListener('orientationchange', updateScale);
+    setTimeout(updateScale, 300);
 
-    function getClock() {
+    // --- 照度センサー ---
+    if ('AmbientLightSensor' in window) {
         try {
-            const clockElem = document.getElementById('clock');
-            const dateElem = document.getElementById('date');
-            const yearElem = document.getElementById('year');
-            const eraElem = document.getElementById('era');
-
-            if (!clockElem || !dateElem) return;
-
-            const now = new Date();
-            clockElem.textContent = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-            
-            const yearStr = now.getFullYear();
-            let eraStr = "";
-            try {
-                // Intl がサポートされていない環境向けのフォールバック
-                eraStr = new Intl.DateTimeFormat('ja-JP-u-ca-japanese', { era: 'long', year: 'numeric' }).format(now);
-            } catch (e) {
-                eraStr = "西暦" + yearStr + "年"; 
-            }
-            
-            if (yearElem) yearElem.textContent = yearStr;
-            if (eraElem) eraElem.textContent = eraStr;
-
-            const MM = String(now.getMonth() + 1).padStart(2, '0');
-            const DD = String(now.getDate()).padStart(2, '0');
-            const weekdays = ['日', '月', '火', '水', '木', '金', '土'];
-            const w = weekdays[now.getDay()];
-            dateElem.textContent = `${MM}/${DD} ${w}`;
-        } catch (err) {
-            console.error("getClock Error:", err);
-        }
+            const sensor = new AmbientLightSensor();
+            sensor.addEventListener('reading', () => {
+                sensor.illuminance < 10 ? document.body.classList.add('dim') : document.body.classList.remove('dim');
+            });
+            sensor.start();
+        } catch (err) { console.warn('Ambient Light Sensor 起動失敗:', err); }
     }
-    getClock(); // 初回実行
-    setInterval(getClock, 33000); // ユーザー設定の更新間隔
 
-    if (mainElement) {
-        mainElement.addEventListener('click', () => {
-            // すでに PWA（フルスクリーン）として起動している場合は、
-            // requestFullscreen を呼び出すと競合してブラックアウトするためスキップする
-            if (isPWA()) {
-                console.log("PWA mode: Skip requestFullscreen to avoid blackout.");
-                return;
-            }
+    // --- 設定モーダル / フォーム制御 ---
+    const settingsBtn = document.getElementById('settings-btn');
+    const settingsModal = document.getElementById('settings-modal');
+    const settingsClose = document.getElementById('settings-close-top');
+    const settingsSave = document.getElementById('settings-save');
+    
+    const inputApiKey = document.getElementById('set-api-key');
+    const inputLocation = document.getElementById('set-location');
+    const selectDisplayType = document.getElementById('set-display-type');
 
-            const body = document.body;
-            try {
-                if (body.requestFullscreen) {
-                    body.requestFullscreen();
-                } else if (body.webkitRequestFullscreen) {
-                    body.webkitRequestFullscreen();
-                } else if (body.mozRequestFullScreen) {
-                    body.mozRequestFullScreen();
-                } else if (body.msRequestFullscreen) {
-                    body.msRequestFullscreen();
-                }
-            } catch (e) {
-                console.error("Fullscreen Error:", e);
-            }
+    const loadSettings = () => {
+        inputApiKey.value = getStore(STORAGE_KEYS.API_KEY);
+        inputLocation.value = getStore(STORAGE_KEYS.LOCATION);
+        selectDisplayType.value = getStore(STORAGE_KEYS.DISPLAY_TYPE) || 'lcd';
+    };
+
+    const openSettings = () => {
+        loadSettings();
+        settingsModal.style.display = 'block';
+        settingsModal.scrollTop = 0;
+    };
+
+    const closeSettings = () => {
+        settingsModal.style.display = 'none';
+    };
+
+    settingsBtn.addEventListener('click', openSettings);
+    settingsClose.addEventListener('click', closeSettings);
+    settingsSave.addEventListener('click', () => {
+        setStore(STORAGE_KEYS.API_KEY, inputApiKey.value);
+        setStore(STORAGE_KEYS.LOCATION, inputLocation.value);
+        setStore(STORAGE_KEYS.DISPLAY_TYPE, selectDisplayType.value);
+        closeSettings();
+        getWeather(true); // 強制更新
+        applyDisplayTypeEffect();
+    });
+
+    if (settingsModal) {
+        settingsModal.addEventListener('click', (e) => {
+            if (e.target === settingsModal) closeSettings();
         });
     }
 
-    function getWeather() {
-        const apiKey = 'a891eb341dae437fba441934252204';
-        const location = 'Sapporo';
-        const apiUrl = `https://api.weatherapi.com/v1/current.json?key=${apiKey}&q=${location}&lang=ja`;
+    // --- OLED 焼き付き防止 (Pixel Shifting) ---
+    let oledInterval = null;
+    function applyDisplayTypeEffect() {
+        const type = getStore(STORAGE_KEYS.DISPLAY_TYPE);
+        const datetimeArea = document.getElementById('datetime-area');
+        if (!datetimeArea) return;
 
+        if (oledInterval) clearInterval(oledInterval);
+        
+        if (type === 'oled') {
+            oledInterval = setInterval(() => {
+                const offsetX = Math.floor(Math.random() * 21) - 10; // -10 ~ 10px
+                const offsetY = Math.floor(Math.random() * 21) - 10;
+                datetimeArea.style.transition = 'transform 2s ease-in-out';
+                datetimeArea.style.transform = `translate(${offsetX}px, ${offsetY}px)`;
+            }, 60000); // 1分ごとに移動
+        } else {
+            datetimeArea.style.transform = 'translate(0, 0)';
+        }
+    }
+    applyDisplayTypeEffect();
+
+    // --- Screen Wake Lock ---
+    let wakeLock = null;
+    const requestWakeLock = async () => {
+        if (wakeLock !== null || !('wakeLock' in navigator)) return;
+        try {
+            wakeLock = await navigator.wakeLock.request('screen');
+            wakeLock.addEventListener('release', () => { wakeLock = null; });
+        } catch (err) { console.error(err); }
+    };
+    const releaseWakeLock = async () => {
+        if (wakeLock !== null) { await wakeLock.release(); wakeLock = null; }
+    };
+
+    document.addEventListener('fullscreenchange', () => {
+        document.fullscreenElement ? requestWakeLock() : (!isPWA() && releaseWakeLock());
+    });
+    document.addEventListener('visibilitychange', () => {
+        if (document.visibilityState === 'visible' && (isPWA() || document.fullscreenElement)) requestWakeLock();
+    });
+    if (isPWA()) requestWakeLock();
+
+    // --- 時計更新 ---
+    function updateClock() {
+        const clockElem = document.getElementById('clock');
+        const dateElem = document.getElementById('date');
+        const yearElem = document.getElementById('year');
+        const eraElem = document.getElementById('era');
+        const monthEnElem = document.getElementById('month-en');
+        const dayEnElem = document.getElementById('day-en');
+        if (!clockElem) return;
+
+        const now = new Date();
+        clockElem.textContent = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        
+        try {
+            const yearStr = now.getFullYear();
+            const eraPart = new Intl.DateTimeFormat('ja-JP-u-ca-japanese', { era: 'long', year: 'numeric' }).format(now);
+            if (yearElem) yearElem.textContent = yearStr;
+            if (eraElem) eraElem.textContent = eraPart;
+        } catch (e) { /* fallback */ }
+
+        if (monthEnElem) monthEnElem.textContent = now.toLocaleString('en-US', { month: 'short' }).toUpperCase();
+        if (dayEnElem) dayEnElem.textContent = now.toLocaleString('en-US', { weekday: 'short' }).toUpperCase();
+
+        const MM = String(now.getMonth() + 1).padStart(2, '0');
+        const DD = String(now.getDate()).padStart(2, '0');
+        const weekdays = ['日', '月', '火', '水', '木', '金', '土'];
+        dateElem.textContent = `${MM}/${DD} ${weekdays[now.getDay()]}`;
+    }
+    setInterval(updateClock, 1000); // インジケーターがあるので1秒毎に更新
+    updateClock();
+
+    // --- 天気取得 (キャッシュ対応) ---
+    async function getWeather(force = false) {
+        const apiKey = getStore(STORAGE_KEYS.API_KEY);
+        const location = getStore(STORAGE_KEYS.LOCATION);
         const weatherElem = document.getElementById('weather');
         if (!weatherElem) return;
 
-        fetch(apiUrl)
-            .then(response => {
-                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-                return response.json();
-            })
-            .then(data => {
-                const weatherDescription = data.current.condition.text;
-                const tempC = data.current.temp_c;
-                const humidity = data.current.humidity;
-                weatherElem.textContent = `${weatherDescription}  ${tempC}°C  ${humidity}%`;
-            })
-            .catch(error => {
-                console.error('天気データの取得失敗:', error);
-            });
+        if (!apiKey || !location) {
+            weatherElem.textContent = 'APIキー未設定';
+            return;
+        }
+
+        const now = Date.now();
+        const lastFetch = parseInt(getStore(STORAGE_KEYS.WEATHER_CACHE_TIME) || '0');
+        const cacheData = getStore(STORAGE_KEYS.WEATHER_CACHE);
+
+        // キャッシュ有効チェック (30分 = 1800000ms)
+        if (!force && cacheData && (now - lastFetch < 1800000)) {
+            weatherElem.textContent = cacheData;
+            return;
+        }
+
+        const apiUrl = `https://api.weatherapi.com/v1/current.json?key=${apiKey}&q=${location}&lang=ja`;
+        try {
+            const res = await fetch(apiUrl);
+            if (!res.ok) throw new Error();
+            const data = await res.json();
+            const text = `${data.current.condition.text}  ${data.current.temp_c}°C  ${data.current.humidity}%`;
+            
+            weatherElem.textContent = text;
+            setStore(STORAGE_KEYS.WEATHER_CACHE, text);
+            setStore(STORAGE_KEYS.WEATHER_CACHE_TIME, now.toString());
+        } catch (e) {
+            console.error(e);
+            weatherElem.textContent = cacheData || '----';
+        }
     }
-    getWeather(); // 初回実行
-    setInterval(getWeather, 1000 * 60 * 30); // 30分ごとに更新
+
+    // --- 初期誘導 ---
+    if (!getStore(STORAGE_KEYS.API_KEY)) {
+        setTimeout(openSettings, 1000);
+    } else {
+        getWeather();
+    }
+    setInterval(() => getWeather(), 1800000);
+
+    // --- フルスクリーン ---
+    const fullScrBtn = document.getElementById('full-scr-btn');
+    if (isPWA()) {
+        document.getElementById('full-scr').style.display = 'none';
+    } else if (fullScrBtn) {
+        fullScrBtn.addEventListener('click', () => {
+            if (document.fullscreenElement) {
+                document.exitFullscreen ? document.exitFullscreen() : document.webkitExitFullscreen();
+            } else {
+                document.body.requestFullscreen ? document.body.requestFullscreen() : document.body.webkitRequestFullscreen();
+            }
+        });
+    }
 });

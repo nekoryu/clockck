@@ -3,7 +3,8 @@
 * {
     font-family: "M PLUS 2", sans-serif;
     box-sizing: border-box;
-    -webkit-text-size-adjust: none; /* Android Chrome等のフォント自動拡大を防止 */
+    -webkit-text-size-adjust: none;
+    /* Android Chrome等のフォント自動拡大を防止 */
     text-size-adjust: none;
 }
 
@@ -72,7 +73,7 @@ main {
     font-size: 340px;
     font-weight: bold;
     letter-spacing: 12px;
-    color: #fefefe;
+    color: #eee;
     margin: 0;
     line-height: 1;
     white-space: nowrap;
@@ -109,21 +110,239 @@ main {
     white-space: nowrap;
 }
 
-/* フルスクリーンボタン（一旦非表示または元のまま） */
-#full-scr {
-    display: none;
+/* 操作ボタンエリア */
+#controls {
+    position: fixed;
+    top: 50px;
+    right: 50px;
+    z-index: 1000;
+    display: flex;
+    gap: 40px;
 }
 
-#full-scr-btn {
-    padding: 15px 30px;
-    font-size: 30px;
-    border-radius: 8px;
-    background-color: #707071;
-    color: #fff;
+#full-scr-btn,
+#settings-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100px; /* 80px -> 100px */
+    height: 100px;
+    font-size: 60px; /* 50px -> 60px */
+    border-radius: 30%;
+    background-color: rgba(112, 112, 113, 0.3);
+    color: #eee;
     border: none;
     cursor: pointer;
+    transition: background-color 0.3s;
 }
 
-#full-scr-btn:hover {
-    background-color: #5a5a5b;
+#full-scr-btn:hover,
+#settings-btn:hover {
+    background-color: rgba(112, 112, 113, 0.6);
+}
+
+/* 点滅インジケーター */
+.indicator {
+    width: 20px;
+    height: 20px;
+    background-color: #8be9fd;
+    border-radius: 50%;
+    margin-top: 20px;
+    animation: blink 1s infinite;
+}
+
+@keyframes blink {
+    0%, 100% { opacity: 0; }
+    50% { opacity: 1; }
+}
+
+/* 設定全画面オーバーレイ (SPA) */
+#settings-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: #000;
+    display: none;
+    /* JSで制御 */
+    z-index: 2000;
+    color: #eee;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+#settings-container {
+    display: flex;
+    flex-direction: column;
+    min-height: 100%;
+    width: 100%;
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+#settings-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 2px solid #333;
+    padding-bottom: 20px;
+    margin-bottom: 30px;
+}
+
+#settings-header h1 {
+    margin: 0;
+    font-size: 48px;
+    color: #cdcdfa;
+}
+
+#settings-close-top {
+    background: transparent;
+    border: 1px solid #555;
+    color: #888;
+    font-size: 40px;
+    width: 70px;
+    height: 70px;
+    border-radius: 10px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#settings-body {
+    flex: 1;
+}
+
+.settings-section {
+    background: #111;
+    border-radius: 15px;
+    padding: 30px;
+    margin-bottom: 30px;
+    border: 1px solid #222;
+}
+
+.settings-section h3 {
+    margin-top: 0;
+    font-size: 32px;
+    color: #8be9fd;
+    margin-bottom: 20px;
+}
+
+.settings-form {
+    text-align: left;
+}
+
+.form-group {
+    margin-bottom: 25px;
+}
+
+.form-group label {
+    display: block;
+    font-size: 24px;
+    margin-bottom: 10px;
+    color: #ccc;
+}
+
+.form-group input, .form-group select {
+    width: 100%;
+    padding: 15px;
+    font-size: 24px;
+    background: #2a2a2a;
+    border: 1px solid #444;
+    color: #fff;
+    border-radius: 8px;
+}
+
+.credit-list {
+    font-size: 26px;
+    line-height: 1.5;
+    text-align: center;
+}
+
+.credit-list a {
+    color: #ff79c6;
+    text-decoration: underline;
+}
+
+hr {
+    border: none;
+    border-top: 1px solid #333;
+    margin: 20px 0;
+}
+
+#settings-footer {
+    padding-top: 30px;
+    border-top: 2px solid #333;
+    text-align: center;
+    margin-top: 20px;
+}
+
+#settings-save {
+    width: 100%;
+    max-width: 400px;
+    padding: 20px;
+    font-size: 30px;
+    background: #6272a4;
+    color: #fff;
+    border: none;
+    border-radius: 15px;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+
+#settings-save:hover {
+    background: #7282b4;
+}
+
+/* 輝度抑制（やや暗い）モード */
+body.dim {
+    filter: brightness(60%);
+    background-color: #000;
+}
+
+/* --- 縦長表示 (Portrait) --- */
+@media (orientation: portrait) {
+    main {
+        width: 1080px;
+        height: 2400px;
+        gap: 80px;
+        /* メイン要素間の隙間 */
+    }
+
+    #datetime-area {
+        flex-direction: column;
+        gap: 120px;
+        /* 時刻と日付群の間の余白をしっかり取る */
+    }
+
+    #clock {
+        font-size: 320px;
+    }
+
+    #date-wrapper {
+        flex-direction: column;
+        align-items: center;
+        width: 100%;
+        gap: 25px;
+        /* 年号と月日は近づける */
+    }
+
+    #year-area {
+        font-size: 70px;
+        order: 1;
+    }
+
+    #date {
+        font-size: 220px;
+        order: 2;
+    }
+
+    #weather-area {
+        margin-top: 40px;
+        font-size: 75px;
+        padding: 0 40px;
+        line-height: 1.4;
+    }
 }

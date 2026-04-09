@@ -4,29 +4,85 @@
 <head>
     <link rel="manifest" href="./manifest.json">
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
+    <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
     <title>nekoryu/clockck</title>
-    <link
-        href="https://fonts.googleapis.com/css2?family=M+PLUS+2:wght@100..900&display=swap"
-        rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=M+PLUS+2:wght@100..900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="./styles.css">
 </head>
 
 <body>
     <main>
-        <div id="full-scr"><span id="full-scr-btn">FULL SCREEN</span></div>
+        <div id="controls">
+            <div id="full-scr"><span id="full-scr-btn">⛶</span></div>
+            <div id="settings"><span id="settings-btn">⚙</span></div>
+        </div>
         <div id="datetime-area">
             <div id="clock">--:--</div>
             <div id="date-wrapper">
                 <div id="year-area">
                     <span id="year">----</span>
                     <span id="era">----</span>
+                    <span id="month-en">---</span>
+                    <span id="day-en">---</span>
                 </div>
                 <div id="date">--/--(--)</div>
             </div>
         </div>
+        <div id="indicator" class="indicator"></div>
         <div id="weather-area"><span id="weather">----</span><span id="weather-placeName"></span></div>
     </main>
+    <div id="settings-modal">
+        <div id="settings-container">
+            <header id="settings-header">
+                <h1>設定</h1>
+                <button id="settings-close-top">✕</button>
+            </header>
+            <div id="settings-body">
+                <section class="settings-section">
+                    <h3>天気設定</h3>
+                    <div class="settings-form">
+                        <div class="form-group">
+                            <label for="set-api-key">WeatherAPI APIキー</label>
+                            <input type="text" id="set-api-key" placeholder="APIキーを入力">
+                        </div>
+                        <div class="form-group">
+                            <label for="set-location">取得場所 (Location)</label>
+                            <input type="text" id="set-location" placeholder="例: Sapporo">
+                        </div>
+                    </div>
+                </section>
+
+                <section class="settings-section">
+                    <h3>表示設定</h3>
+                    <div class="settings-form">
+                        <div class="form-group">
+                            <label for="set-display-type">液晶タイプ</label>
+                            <select id="set-display-type">
+                                <option value="lcd">液晶 (位置固定)</option>
+                                <option value="oled">有機EL (焼き付き防止)</option>
+                            </select>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="settings-section">
+                    <h3>クレジット</h3>
+                    <div class="credit-list">
+                        <p><strong>リポジトリ:</strong><br>
+                            <a href="https://github.com/nekoryu/clockck" target="_blank" rel="noopener">nekoryu/clockck</a>
+                        </p>
+                        <hr>
+                        <p>Powered by <a href="https://www.weatherapi.com/" title="Weather API" target="_blank"
+                                rel="noopener">WeatherAPI.com</a></p>
+                    </div>
+                </section>
+            </div>
+            <footer id="settings-footer">
+                <button id="settings-save">保存して閉じる</button>
+            </div>
+        </div>
+    </div>
     <script src="./script.js" defer></script>
     <script>
         if ('serviceWorker' in navigator) {
