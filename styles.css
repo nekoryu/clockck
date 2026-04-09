@@ -1,9 +1,10 @@
 @charset 'UTF-8';
 
-/* 全体のフォント設定 */
 * {
     font-family: "M PLUS 2", sans-serif;
     box-sizing: border-box;
+    -webkit-text-size-adjust: none; /* Android Chrome等のフォント自動拡大を防止 */
+    text-size-adjust: none;
 }
 
 html,

@@ -10,12 +10,16 @@ document.addEventListener('DOMContentLoaded', () => {
     const mainElement = document.querySelector('main');
     function updateScale() {
         if (!mainElement) return;
-        // PWA起動直後や回転時に正しいサイズを取得できない場合があるため、
-        // innerWidth/Height が 0 の場合はスキップ
-        if (window.innerWidth === 0 || window.innerHeight === 0) return;
+        
+        // window.innerWidth よりも documentElement.clientWidth の方が
+        // モバイルブラウザのアドレスバー等の影響を受けにくく正確な場合があります
+        const viewWidth = document.documentElement.clientWidth || window.innerWidth;
+        const viewHeight = document.documentElement.clientHeight || window.innerHeight;
 
-        const scaleX = window.innerWidth / 2400;
-        const scaleY = window.innerHeight / 1080;
+        if (viewWidth === 0 || viewHeight === 0) return;
+
+        const scaleX = viewWidth / 2400;
+        const scaleY = viewHeight / 1080;
         mainElement.style.transform = `scale(${scaleX}, ${scaleY})`;
     }
 

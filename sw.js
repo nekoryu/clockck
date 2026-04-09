@@ -1,4 +1,4 @@
-var CACHE_NAME = 'clockck-v4'; // スケーリング安定化・バグ修正版
+var CACHE_NAME = 'clockck-v5'; // スケーリング異常修正版
 var urlsToCache = [
     './',
     './index.html',
