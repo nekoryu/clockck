@@ -37,19 +37,44 @@ main {
 #datetime-area {
     display: flex;
     flex-direction: row;
-    align-items: baseline;
+    align-items: center;
+    /* baselineだと子要素がずれるためcenterに */
     justify-content: center;
-    gap: 80px;
+    gap: 60px;
+    /* 80pxから微減 */
+}
+
+/* 日付と年号のラッパー */
+#date-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: space-between;
+    height: 300px;
+    /* clockの高さ(300px)と完全に一致させる */
+}
+
+#year-area {
+    font-size: 70px;
+    font-weight: bold;
+    color: #cdcdfa;
+    display: flex;
+    gap: 20px;
+    margin: 0;
+    line-height: 1;
+    letter-spacing: 5px;
+    white-space: nowrap;
 }
 
 /* 時計 */
 #clock {
-    font-size: 380px;
+    font-size: 340px;
     font-weight: bold;
     letter-spacing: 12px;
     color: #fefefe;
     margin: 0;
     line-height: 1;
+    white-space: nowrap;
 }
 
 /* 天気エリア */
@@ -74,12 +99,13 @@ main {
 
 /* 日付 */
 #date {
-    font-size: 220px;
+    font-size: 250px;
     font-weight: bold;
     letter-spacing: 10px;
-    color: #b5b5f3;
+    color: #cdcdfa;
     margin: 0;
-    line-height: 1.1;
+    line-height: 1;
+    white-space: nowrap;
 }
 
 /* フルスクリーンボタン（一旦非表示または元のまま） */
