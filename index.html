@@ -9,7 +9,7 @@
     <link
         href="https://fonts.googleapis.com/css2?family=M+PLUS+2:wght@100..900&display=swap"
         rel="stylesheet">
-    <link rel="stylesheet" href="./styles.css?v=2">
+    <link rel="stylesheet" href="./styles.css">
 </head>
 
 <body>
@@ -27,11 +27,11 @@
         </div>
         <div id="weather-area"><span id="weather">----</span><span id="weather-placeName"></span></div>
     </main>
-    <script src="./script.js?v=2" defer></script>
+    <script src="./script.js" defer></script>
     <script>
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', function () {
-                navigator.serviceWorker.register('./sw.js?v=2').then(function (registration) {
+                navigator.serviceWorker.register('./sw.js').then(function (registration) {
                     console.log('ServiceWorker registration successful with scope: ', registration.scope);
                 }, function (err) {
                     console.log('ServiceWorker registration failed: ', err);

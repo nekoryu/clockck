@@ -1,30 +1,31 @@
-// 実機デバッグ用：エラーを画面に表示する
-window.onerror = function (msg, url, line, col, error) {
-    const debugDiv = document.getElementById('debug-log');
-    if (debugDiv) {
-        debugDiv.style.display = 'block';
-        debugDiv.innerHTML += `<div>ERROR: ${msg}<br>at ${line}:${col}</div>`;
-    }
-    return false;
-};
-
 document.addEventListener('DOMContentLoaded', () => {
-    // 画面中央にデバッグログ用エリアを一時作成（不要になればCSSで消せます）
-    const debugLog = document.createElement('div');
-    debugLog.id = 'debug-log';
-    debugLog.style.cssText = 'position:fixed; bottom:0; left:0; width:100%; background:rgba(255,0,0,0.8); color:white; font-size:12px; z-index:10000; display:none; max-height:200px; overflow:auto; padding:10px; font-family:monospace;';
-    document.body.appendChild(debugLog);
+    // PWA（スタンドアロンまたはフルスクリーンモード）で起動しているか判定
+    function isPWA() {
+        return window.matchMedia('(display-mode: standalone)').matches ||
+               window.matchMedia('(display-mode: fullscreen)').matches ||
+               window.navigator.standalone;
+    }
 
     // 画面サイズに合わせてストレッチ（拡縮）させる処理
     const mainElement = document.querySelector('main');
     function updateScale() {
         if (!mainElement) return;
+        // PWA起動直後や回転時に正しいサイズを取得できない場合があるため、
+        // innerWidth/Height が 0 の場合はスキップ
+        if (window.innerWidth === 0 || window.innerHeight === 0) return;
+
         const scaleX = window.innerWidth / 2400;
         const scaleY = window.innerHeight / 1080;
         mainElement.style.transform = `scale(${scaleX}, ${scaleY})`;
     }
+
+    // スケーリングの多段実行（起動時の安定化）
     updateScale();
+    setTimeout(updateScale, 300); // 300ms後に再計算
+    setTimeout(updateScale, 1000); // 1秒後にも念押しで再計算
+    window.addEventListener('load', updateScale);
     window.addEventListener('resize', updateScale);
+    window.addEventListener('orientationchange', updateScale);
 
     function getClock() {
         try {
@@ -37,16 +38,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const now = new Date();
             clockElem.textContent = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-
+            
             const yearStr = now.getFullYear();
             let eraStr = "";
             try {
                 // Intl がサポートされていない環境向けのフォールバック
                 eraStr = new Intl.DateTimeFormat('ja-JP-u-ca-japanese', { era: 'long', year: 'numeric' }).format(now);
             } catch (e) {
-                eraStr = "西暦" + yearStr + "年";
+                eraStr = "西暦" + yearStr + "年"; 
             }
-
+            
             if (yearElem) yearElem.textContent = yearStr;
             if (eraElem) eraElem.textContent = eraStr;
 
@@ -57,18 +58,20 @@ document.addEventListener('DOMContentLoaded', () => {
             dateElem.textContent = `${MM}/${DD} ${w}`;
         } catch (err) {
             console.error("getClock Error:", err);
-            const debugDiv = document.getElementById('debug-log');
-            if (debugDiv) {
-                debugDiv.style.display = 'block';
-                debugDiv.innerHTML += `<div>getClock Error: ${err.message}</div>`;
-            }
         }
     }
     getClock(); // 初回実行
-    setInterval(getClock, 33000); // 33秒ごとに更新
+    setInterval(getClock, 33000); // ユーザー設定の更新間隔
 
     if (mainElement) {
         mainElement.addEventListener('click', () => {
+            // すでに PWA（フルスクリーン）として起動している場合は、
+            // requestFullscreen を呼び出すと競合してブラックアウトするためスキップする
+            if (isPWA()) {
+                console.log("PWA mode: Skip requestFullscreen to avoid blackout.");
+                return;
+            }
+
             const body = document.body;
             try {
                 if (body.requestFullscreen) {
@@ -107,7 +110,6 @@ document.addEventListener('DOMContentLoaded', () => {
             })
             .catch(error => {
                 console.error('天気データの取得失敗:', error);
-                // 天気情報が取れなくても時計は動かすべきなので、静かにエラーを出すだけにする
             });
     }
     getWeather(); // 初回実行
