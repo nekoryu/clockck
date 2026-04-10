@@ -1,4 +1,4 @@
-var CACHE_NAME = 'clockck-v14'; // APIキーとロケーションのデフォルト値設定版
+var CACHE_NAME = 'clockck-v16'; // コロン点滅停止版
 var urlsToCache = [
     './',
     './index.html',

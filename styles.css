@@ -1,5 +1,26 @@
 @charset 'UTF-8';
 
+:root {
+    --bg-color: #000001;
+    --clock-color: #eee;
+    --date-color: #cdcdfa;
+    --weather-color: #abcaab;
+    --place-color: #727272;
+    --accent-color: #8be9fd;
+    --link-color: #ff79c6;
+    --save-btn-bg: #6272a4;
+}
+
+body.theme-vitamin {
+    --clock-color: #ff9d00;
+    --date-color: #ffcc00;
+    --weather-color: #ffaa66;
+    --place-color: #996633;
+    --accent-color: #ff6600;
+    --link-color: #ff5555;
+    --save-btn-bg: #e67e22;
+}
+
 * {
     font-family: "M PLUS 2", sans-serif;
     box-sizing: border-box;
@@ -12,7 +33,7 @@ html,
 body {
     width: 100%;
     height: 100%;
-    background-color: #000001;
+    background-color: var(--bg-color);
     margin: 0;
     padding: 0;
     overflow: hidden;
@@ -57,9 +78,9 @@ main {
 }
 
 #year-area {
-    font-size: 70px;
+    font-size: 85px;
     font-weight: bold;
-    color: #cdcdfa;
+    color: var(--date-color);
     display: flex;
     gap: 20px;
     margin: 0;
@@ -68,15 +89,39 @@ main {
     white-space: nowrap;
 }
 
+#clock-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+}
+
 /* 時計 */
 #clock {
     font-size: 340px;
     font-weight: bold;
-    letter-spacing: 12px;
-    color: #eee;
+    color: var(--clock-color);
     margin: 0;
     line-height: 1;
     white-space: nowrap;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#colon {
+    font-size: 0.8em;
+    margin: 0 20px;
+    transform: translateY(-10px);
+    /* コロンの高さを微調整 */
+}
+
+#seconds-area {
+    font-size: 140px;
+    font-weight: bold;
+    color: var(--clock-color);
+    margin: 0;
+    margin-top: -10px;
+    line-height: 1;
 }
 
 /* 天気エリア */
@@ -90,13 +135,13 @@ main {
 #weather {
     font-size: 140px;
     font-weight: bold;
-    color: #abcaab;
+    color: var(--weather-color);
 }
 
 #weather-placeName {
     font-size: 60px;
     font-weight: bold;
-    color: #727272;
+    color: var(--place-color);
 }
 
 /* 日付 */
@@ -104,7 +149,7 @@ main {
     font-size: 250px;
     font-weight: bold;
     letter-spacing: 10px;
-    color: #cdcdfa;
+    color: var(--date-color);
     margin: 0;
     line-height: 1;
     white-space: nowrap;
@@ -125,12 +170,14 @@ main {
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 100px; /* 80px -> 100px */
+    width: 100px;
+    /* 80px -> 100px */
     height: 100px;
-    font-size: 60px; /* 50px -> 60px */
+    font-size: 60px;
+    /* 50px -> 60px */
     border-radius: 30%;
     background-color: rgba(112, 112, 113, 0.3);
-    color: #eee;
+    color: var(--clock-color);
     border: none;
     cursor: pointer;
     transition: background-color 0.3s;
@@ -141,19 +188,17 @@ main {
     background-color: rgba(112, 112, 113, 0.6);
 }
 
-/* 点滅インジケーター */
-.indicator {
-    width: 20px;
-    height: 20px;
-    background-color: #8be9fd;
-    border-radius: 50%;
-    margin-top: 20px;
-    animation: blink 1s infinite;
-}
 
 @keyframes blink {
-    0%, 100% { opacity: 0; }
-    50% { opacity: 1; }
+
+    0%,
+    100% {
+        opacity: 0;
+    }
+
+    50% {
+        opacity: 1;
+    }
 }
 
 /* 設定全画面オーバーレイ (SPA) */
@@ -194,7 +239,7 @@ main {
 #settings-header h1 {
     margin: 0;
     font-size: 48px;
-    color: #cdcdfa;
+    color: var(--date-color);
 }
 
 #settings-close-top {
@@ -226,7 +271,7 @@ main {
 .settings-section h3 {
     margin-top: 0;
     font-size: 32px;
-    color: #8be9fd;
+    color: var(--accent-color);
     margin-bottom: 20px;
 }
 
@@ -245,7 +290,8 @@ main {
     color: #ccc;
 }
 
-.form-group input, .form-group select {
+.form-group input,
+.form-group select {
     width: 100%;
     padding: 15px;
     font-size: 24px;
@@ -262,7 +308,7 @@ main {
 }
 
 .credit-list a {
-    color: #ff79c6;
+    color: var(--link-color);
     text-decoration: underline;
 }
 
@@ -284,7 +330,7 @@ hr {
     max-width: 400px;
     padding: 20px;
     font-size: 30px;
-    background: #6272a4;
+    background: var(--save-btn-bg);
     color: #fff;
     border: none;
     border-radius: 15px;
@@ -293,7 +339,7 @@ hr {
 }
 
 #settings-save:hover {
-    background: #7282b4;
+    filter: brightness(1.2);
 }
 
 /* 輝度抑制（やや暗い）モード */
@@ -330,7 +376,7 @@ body.dim {
     }
 
     #year-area {
-        font-size: 70px;
+        font-size: 85px;
         order: 1;
     }
 

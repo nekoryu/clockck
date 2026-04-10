@@ -4,6 +4,7 @@ document.addEventListener('DOMContentLoaded', () => {
         API_KEY: 'clockck_api_key',
         LOCATION: 'clockck_location',
         DISPLAY_TYPE: 'clockck_display_type',
+        THEME: 'clockck_theme',
         WEATHER_CACHE: 'clockck_weather_cache',
         WEATHER_CACHE_TIME: 'clockck_weather_cache_time'
     };
@@ -70,11 +71,21 @@ document.addEventListener('DOMContentLoaded', () => {
     const inputApiKey = document.getElementById('set-api-key');
     const inputLocation = document.getElementById('set-location');
     const selectDisplayType = document.getElementById('set-display-type');
+    const selectTheme = document.getElementById('set-theme');
+
+    const applyTheme = () => {
+        const theme = getStore(STORAGE_KEYS.THEME) || 'default';
+        document.body.classList.remove('theme-vitamin');
+        if (theme === 'vitamin') {
+            document.body.classList.add('theme-vitamin');
+        }
+    };
 
     const loadSettings = () => {
         inputApiKey.value = getStore(STORAGE_KEYS.API_KEY);
         inputLocation.value = getStore(STORAGE_KEYS.LOCATION);
         selectDisplayType.value = getStore(STORAGE_KEYS.DISPLAY_TYPE) || 'lcd';
+        selectTheme.value = getStore(STORAGE_KEYS.THEME) || 'default';
     };
 
     const openSettings = () => {
@@ -93,9 +104,11 @@ document.addEventListener('DOMContentLoaded', () => {
         setStore(STORAGE_KEYS.API_KEY, inputApiKey.value);
         setStore(STORAGE_KEYS.LOCATION, inputLocation.value);
         setStore(STORAGE_KEYS.DISPLAY_TYPE, selectDisplayType.value);
+        setStore(STORAGE_KEYS.THEME, selectTheme.value);
         closeSettings();
         getWeather(true); // 強制更新
         applyDisplayTypeEffect();
+        applyTheme();
     });
 
     if (settingsModal) {
@@ -147,18 +160,25 @@ document.addEventListener('DOMContentLoaded', () => {
     });
     if (isPWA()) requestWakeLock();
 
+    // --- 初期テーマ適用 ---
+    applyTheme();
+
     // --- 時計更新 ---
     function updateClock() {
-        const clockElem = document.getElementById('clock');
+        const hourElem = document.getElementById('hour');
+        const minuteElem = document.getElementById('minute');
+        const secondsElem = document.getElementById('seconds');
         const dateElem = document.getElementById('date');
         const yearElem = document.getElementById('year');
         const eraElem = document.getElementById('era');
         const monthEnElem = document.getElementById('month-en');
         const dayEnElem = document.getElementById('day-en');
-        if (!clockElem) return;
+        if (!hourElem || !minuteElem) return;
 
         const now = new Date();
-        clockElem.textContent = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        hourElem.textContent = String(now.getHours()).padStart(2, '0');
+        minuteElem.textContent = String(now.getMinutes()).padStart(2, '0');
+        if (secondsElem) secondsElem.textContent = String(now.getSeconds()).padStart(2, '0');
         
         try {
             const yearStr = now.getFullYear();
@@ -205,7 +225,17 @@ document.addEventListener('DOMContentLoaded', () => {
             const res = await fetch(apiUrl);
             if (!res.ok) throw new Error();
             const data = await res.json();
-            const text = `${data.current.condition.text}  ${data.current.temp_c}°C  ${data.current.humidity}%`;
+            
+            const condText = data.current.condition.text;
+            let icon = '';
+            if (condText.includes('雨')) icon = '☂';
+            else if (condText.includes('晴')) icon = '☀';
+            else if (condText.includes('曇') || condText.includes('雲')) icon = '☁';
+            else if (condText.includes('雪') || condText.includes('氷') || condText.includes('霙')) icon = '❄';
+            else if (condText.includes('雷')) icon = '⚡';
+            else if (condText.includes('霧') || condText.includes('霞')) icon = '🌫';
+
+            const text = `${icon}${condText}  🌡${data.current.temp_c}°C  💧${data.current.humidity}%`;
             
             weatherElem.textContent = text;
             setStore(STORAGE_KEYS.WEATHER_CACHE, text);

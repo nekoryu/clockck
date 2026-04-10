@@ -18,7 +18,10 @@
             <div id="settings"><span id="settings-btn">⚙</span></div>
         </div>
         <div id="datetime-area">
-            <div id="clock">--:--</div>
+            <div id="clock-wrapper">
+                <div id="clock"><span id="hour">--</span><span id="colon">:</span><span id="minute">--</span></div>
+                <div id="seconds-area"><span id="seconds">--</span></div>
+            </div>
             <div id="date-wrapper">
                 <div id="year-area">
                     <span id="year">----</span>
@@ -29,7 +32,6 @@
                 <div id="date">--/--(--)</div>
             </div>
         </div>
-        <div id="indicator" class="indicator"></div>
         <div id="weather-area"><span id="weather">----</span><span id="weather-placeName"></span></div>
     </main>
     <div id="settings-modal">
@@ -63,6 +65,13 @@
                                 <option value="oled">有機EL (焼き付き防止)</option>
                             </select>
                         </div>
+                        <div class="form-group">
+                            <label for="set-theme">カラーテーマ</label>
+                            <select id="set-theme">
+                                <option value="default">デフォルト</option>
+                                <option value="vitamin">ビタミン (暖色系)</option>
+                            </select>
+                        </div>
                     </div>
                 </section>
 
@@ -70,7 +79,8 @@
                     <h3>クレジット</h3>
                     <div class="credit-list">
                         <p><strong>リポジトリ:</strong><br>
-                            <a href="https://github.com/nekoryu/clockck" target="_blank" rel="noopener">nekoryu/clockck</a>
+                            <a href="https://github.com/nekoryu/clockck" target="_blank"
+                                rel="noopener">nekoryu/clockck</a>
                         </p>
                         <hr>
                         <p>Powered by <a href="https://www.weatherapi.com/" title="Weather API" target="_blank"
@@ -80,8 +90,8 @@
             </div>
             <footer id="settings-footer">
                 <button id="settings-save">保存して閉じる</button>
-            </div>
         </div>
+    </div>
     </div>
     <script src="./script.js" defer></script>
     <script>
