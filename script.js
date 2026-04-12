@@ -75,9 +75,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const applyTheme = () => {
         const theme = getStore(STORAGE_KEYS.THEME) || 'default';
-        document.body.classList.remove('theme-vitamin');
-        if (theme === 'vitamin') {
-            document.body.classList.add('theme-vitamin');
+        // 管理対象のテーマクラス一覧
+        const themeClasses = ['theme-light', 'theme-vitamin'];
+        document.body.classList.remove(...themeClasses);
+
+        if (theme !== 'default') {
+            document.body.classList.add(`theme-${theme}`);
         }
     };
 

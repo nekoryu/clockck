@@ -9,6 +9,39 @@
     --accent-color: #8be9fd;
     --link-color: #ff79c6;
     --save-btn-bg: #6272a4;
+
+    /* モーダル関連 */
+    --modal-bg: #000;
+    --modal-text: #eee;
+    --modal-section-bg: #111;
+    --modal-border: #333;
+    --modal-input-bg: #2a2a2a;
+    --modal-input-border: #444;
+    --modal-label: #ccc;
+    --modal-close-border: #555;
+    --modal-close-text: #888;
+}
+
+body.theme-light {
+    --bg-color: #fdfdfd;
+    --clock-color: #333;
+    --date-color: #5a5a8a;
+    --weather-color: #4a7a4a;
+    --place-color: #888;
+    --accent-color: #00a2ff;
+    --link-color: #d63384;
+    --save-btn-bg: #4a90e2;
+
+    /* モーダル関連 (ライト) */
+    --modal-bg: #fff;
+    --modal-text: #333;
+    --modal-section-bg: #f5f5f5;
+    --modal-border: #ddd;
+    --modal-input-bg: #fff;
+    --modal-input-border: #ccc;
+    --modal-label: #666;
+    --modal-close-border: #ccc;
+    --modal-close-text: #999;
 }
 
 body.theme-vitamin {
@@ -208,11 +241,11 @@ main {
     left: 0;
     width: 100vw;
     height: 100vh;
-    background: #000;
+    background: var(--modal-bg);
     display: none;
     /* JSで制御 */
     z-index: 2000;
-    color: #eee;
+    color: var(--modal-text);
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
 }
@@ -231,7 +264,7 @@ main {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    border-bottom: 2px solid #333;
+    border-bottom: 2px solid var(--modal-border);
     padding-bottom: 20px;
     margin-bottom: 30px;
 }
@@ -244,8 +277,8 @@ main {
 
 #settings-close-top {
     background: transparent;
-    border: 1px solid #555;
-    color: #888;
+    border: 1px solid var(--modal-close-border);
+    color: var(--modal-close-text);
     font-size: 40px;
     width: 70px;
     height: 70px;
@@ -261,11 +294,11 @@ main {
 }
 
 .settings-section {
-    background: #111;
+    background: var(--modal-section-bg);
     border-radius: 15px;
     padding: 30px;
     margin-bottom: 30px;
-    border: 1px solid #222;
+    border: 1px solid var(--modal-border);
 }
 
 .settings-section h3 {
@@ -287,7 +320,7 @@ main {
     display: block;
     font-size: 24px;
     margin-bottom: 10px;
-    color: #ccc;
+    color: var(--modal-label);
 }
 
 .form-group input,
@@ -295,9 +328,9 @@ main {
     width: 100%;
     padding: 15px;
     font-size: 24px;
-    background: #2a2a2a;
-    border: 1px solid #444;
-    color: #fff;
+    background: var(--modal-input-bg);
+    border: 1px solid var(--modal-input-border);
+    color: var(--modal-text);
     border-radius: 8px;
 }
 
@@ -314,13 +347,13 @@ main {
 
 hr {
     border: none;
-    border-top: 1px solid #333;
+    border-top: 1px solid var(--modal-border);
     margin: 20px 0;
 }
 
 #settings-footer {
     padding-top: 30px;
-    border-top: 2px solid #333;
+    border-top: 2px solid var(--modal-border);
     text-align: center;
     margin-top: 20px;
 }

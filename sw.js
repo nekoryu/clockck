@@ -1,4 +1,4 @@
-var CACHE_NAME = 'clockck-v16'; // コロン点滅停止版
+var CACHE_NAME = 'clockck-v17'; // ライトテーマ追加版
 var urlsToCache = [
     './',
     './index.html',
