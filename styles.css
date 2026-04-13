@@ -381,6 +381,17 @@ main {
     pointer-events: none;
 }
 
+.warning-box {
+    margin-top: 15px;
+    padding: 15px;
+    background-color: rgba(255, 85, 85, 0.1);
+    border: 1px solid var(--link-color);
+    border-radius: 8px;
+    color: var(--link-color);
+    font-size: 20px;
+    line-height: 1.4;
+}
+
 .credit-list {
     font-size: 26px;
     line-height: 1.5;

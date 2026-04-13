@@ -48,9 +48,20 @@ document.addEventListener('DOMContentLoaded', () => {
             baseWidth = 2400; baseHeight = 1080;
         }
 
-        const scaleX = viewWidth / baseWidth;
-        const scaleY = viewHeight / baseHeight;
-        mainElement.style.transform = `scale(${scaleX}, ${scaleY})`;
+        let scaleX = viewWidth / baseWidth;
+        let scaleY = viewHeight / baseHeight;
+
+        const type = getStore(STORAGE_KEYS.DISPLAY_TYPE);
+        if (type === 'oled') {
+            const pad = 400; // ±200px margin * 2
+            scaleX = viewWidth / (baseWidth + pad);
+            scaleY = viewHeight / (baseHeight + pad);
+            const translateX = (viewWidth - baseWidth * scaleX) / 2;
+            const translateY = (viewHeight - baseHeight * scaleY) / 2;
+            mainElement.style.transform = `translate(${translateX}px, ${translateY}px) scale(${scaleX}, ${scaleY})`;
+        } else {
+            mainElement.style.transform = `scale(${scaleX}, ${scaleY})`;
+        }
     }
 
     updateScale();
@@ -74,7 +85,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const settingsModal = document.getElementById('settings-modal');
     const settingsDiscard = document.getElementById('settings-discard');
     const settingsSave = document.getElementById('settings-save');
-    
+
     const inputApiKey = document.getElementById('set-api-key');
     const inputLocation = document.getElementById('set-location');
     const selectDisplayType = document.getElementById('set-display-type');
@@ -89,6 +100,23 @@ document.addEventListener('DOMContentLoaded', () => {
     const cbPrecip = document.getElementById('item-precip');
     const cbPressure = document.getElementById('item-pressure');
     const weatherSubItems = document.getElementById('weather-sub-items');
+    const warningBox = document.getElementById('theme-oled-warning');
+
+    const updateWarning = () => {
+        if (!warningBox) return;
+        
+        let themeVal = selectTheme.value;
+        if (themeVal === 'auto') {
+            themeVal = window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'default';
+        }
+        
+        const isOled = selectDisplayType.value === 'oled';
+        const isLight = themeVal === 'light';
+        warningBox.style.display = (isOled && isLight) ? 'block' : 'none';
+    };
+
+    selectDisplayType.addEventListener('change', updateWarning);
+    selectTheme.addEventListener('change', updateWarning);
 
     // 天気全体のトグルによってサブ項目を無効化
     cbWeather.addEventListener('change', () => {
@@ -134,6 +162,7 @@ document.addEventListener('DOMContentLoaded', () => {
         cbPrecip.checked = items.precip;
         cbPressure.checked = items.pressure;
         weatherSubItems.classList.toggle('disabled', !cbWeather.checked);
+        updateWarning();
     };
 
     const openSettings = () => {
@@ -177,10 +206,10 @@ document.addEventListener('DOMContentLoaded', () => {
     if (btnReset) {
         btnReset.addEventListener('click', async () => {
             if (!confirm('全てのキャッシュ(ServiceWorker/天候等)と設定を破棄して再読み込みしますか？\n※APIキーなどの設定も初期化されます。')) return;
-            
+
             // localStorage の初期化
             localStorage.clear();
-            
+
             // ServiceWorker の登録解除
             if ('serviceWorker' in navigator) {
                 const registrations = await navigator.serviceWorker.getRegistrations();
@@ -188,13 +217,13 @@ document.addEventListener('DOMContentLoaded', () => {
                     await reg.unregister();
                 }
             }
-            
+
             // Cache Storage (PWAアセット) の消去
             if ('caches' in window) {
                 const keys = await caches.keys();
                 await Promise.all(keys.map(key => caches.delete(key)));
             }
-            
+
             // リロードして初期状態に戻す
             window.location.reload(true);
         });
@@ -211,19 +240,36 @@ document.addEventListener('DOMContentLoaded', () => {
     function applyDisplayTypeEffect() {
         const type = getStore(STORAGE_KEYS.DISPLAY_TYPE);
         const datetimeArea = document.getElementById('datetime-area');
-        if (!datetimeArea) return;
+        const weatherArea = document.getElementById('weather-area');
 
         if (oledInterval) clearInterval(oledInterval);
         
         if (type === 'oled') {
+            updateScale(); // スケールを再評価してはみ出し防止の縮小を適用
             oledInterval = setInterval(() => {
-                const offsetX = Math.floor(Math.random() * 21) - 10; // -10 ~ 10px
-                const offsetY = Math.floor(Math.random() * 21) - 10;
-                datetimeArea.style.transition = 'transform 2s ease-in-out';
-                datetimeArea.style.transform = `translate(${offsetX}px, ${offsetY}px)`;
+                const offsetX = Math.floor(Math.random() * 401) - 200; // -200 ~ 200px
+                const offsetY = Math.floor(Math.random() * 401) - 200;
+                const transformStr = `translate(${offsetX}px, ${offsetY}px)`;
+                
+                if (datetimeArea) {
+                    datetimeArea.style.transition = 'transform 2s ease-in-out';
+                    datetimeArea.style.transform = transformStr;
+                }
+                if (weatherArea) {
+                    weatherArea.style.transition = 'transform 2s ease-in-out';
+                    weatherArea.style.transform = transformStr;
+                }
             }, 60000); // 1分ごとに移動
         } else {
-            datetimeArea.style.transform = 'translate(0, 0)';
+            updateScale(); // OLEDが無効化されたらスケールを元に戻す
+            if (datetimeArea) {
+                datetimeArea.style.transition = 'transform 0.5s ease-out';
+                datetimeArea.style.transform = 'translate(0, 0)';
+            }
+            if (weatherArea) {
+                weatherArea.style.transition = 'transform 0.5s ease-out';
+                weatherArea.style.transform = 'translate(0, 0)';
+            }
         }
     }
     applyDisplayTypeEffect();
@@ -279,7 +325,7 @@ document.addEventListener('DOMContentLoaded', () => {
         hourElem.textContent = String(now.getHours()).padStart(2, '0');
         minuteElem.textContent = String(now.getMinutes()).padStart(2, '0');
         if (secondsElem) secondsElem.textContent = String(now.getSeconds()).padStart(2, '0');
-        
+
         try {
             const yearStr = now.getFullYear();
             const eraPart = new Intl.DateTimeFormat('ja-JP-u-ca-japanese', { era: 'long', year: 'numeric' }).format(now);
@@ -314,7 +360,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const temp = cur.temp_c.toFixed(1);
         const u = (t) => `<span class="unit">${t}</span>`;
-        
+
         let text = `${u(icon)}${condText} <span class="weather-item">${u('🌡')}${temp}${u('°C')}</span>`;
 
         if (items.feels) {
@@ -374,10 +420,10 @@ document.addEventListener('DOMContentLoaded', () => {
             const res = await fetch(apiUrl);
             if (!res.ok) throw new Error();
             const data = await res.json();
-            
+
             const cur = data.current;
             weatherElem.innerHTML = renderWeather(cur);
-            
+
             setStore(STORAGE_KEYS.WEATHER_CACHE, JSON.stringify(cur));
             setStore(STORAGE_KEYS.WEATHER_CACHE_TIME, now.toString());
         } catch (e) {

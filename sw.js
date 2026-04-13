@@ -1,4 +1,4 @@
-var CACHE_NAME = 'clockck-v22'; // 縦画面の時刻・日付間の余白調整
+var CACHE_NAME = 'clockck-v26'; // 変数宣言漏れの修正
 var urlsToCache = [
     './',
     './index.html',
