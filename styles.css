@@ -166,9 +166,18 @@ main {
 }
 
 #weather {
-    font-size: 140px;
+    font-size: 126px;
     font-weight: bold;
     color: var(--weather-color);
+}
+
+#weather .unit {
+    filter: brightness(0.95) hue-rotate(60deg);
+}
+
+.weather-item {
+    display: inline-block;
+    white-space: nowrap;
 }
 
 #weather-placeName {
@@ -262,31 +271,42 @@ main {
 
 #settings-header {
     display: flex;
-    justify-content: space-between;
-    align-items: center;
+    justify-content: flex-end;
     border-bottom: 2px solid var(--modal-border);
     padding-bottom: 20px;
     margin-bottom: 30px;
 }
 
-#settings-header h1 {
-    margin: 0;
-    font-size: 48px;
-    color: var(--date-color);
+.header-buttons {
+    display: flex;
+    gap: 20px;
 }
 
-#settings-close-top {
-    background: transparent;
-    border: 1px solid var(--modal-close-border);
-    color: var(--modal-close-text);
-    font-size: 40px;
-    width: 70px;
-    height: 70px;
+#settings-discard,
+#settings-save {
+    padding: 12px 30px;
+    font-size: 26px;
+    font-weight: bold;
     border-radius: 10px;
     cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    border: none;
+    transition: filter 0.2s;
+}
+
+#settings-discard {
+    background: rgba(128, 128, 128, 0.2);
+    border: 1px solid var(--modal-close-border);
+    color: var(--modal-close-text);
+}
+
+#settings-save {
+    background: var(--save-btn-bg);
+    color: #fff;
+}
+
+#settings-discard:hover,
+#settings-save:hover {
+    filter: brightness(1.2);
 }
 
 #settings-body {
@@ -334,6 +354,33 @@ main {
     border-radius: 8px;
 }
 
+.checkbox-group label {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+    font-size: 24px;
+    margin-bottom: 20px;
+}
+
+.checkbox-group input[type="checkbox"] {
+    width: 30px;
+    height: 30px;
+    margin: 0;
+    cursor: pointer;
+}
+
+.sub-group {
+    margin-left: 50px;
+    display: flex;
+    flex-direction: column;
+}
+
+.sub-group.disabled {
+    opacity: 0.4;
+    pointer-events: none;
+}
+
 .credit-list {
     font-size: 26px;
     line-height: 1.5;
@@ -349,30 +396,6 @@ hr {
     border: none;
     border-top: 1px solid var(--modal-border);
     margin: 20px 0;
-}
-
-#settings-footer {
-    padding-top: 30px;
-    border-top: 2px solid var(--modal-border);
-    text-align: center;
-    margin-top: 20px;
-}
-
-#settings-save {
-    width: 100%;
-    max-width: 400px;
-    padding: 20px;
-    font-size: 30px;
-    background: var(--save-btn-bg);
-    color: #fff;
-    border: none;
-    border-radius: 15px;
-    cursor: pointer;
-    transition: background 0.3s;
-}
-
-#settings-save:hover {
-    filter: brightness(1.2);
 }
 
 /* 輝度抑制（やや暗い）モード */

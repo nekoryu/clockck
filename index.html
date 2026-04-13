@@ -37,24 +37,12 @@
     <div id="settings-modal">
         <div id="settings-container">
             <header id="settings-header">
-                <h1>設定</h1>
-                <button id="settings-close-top">✕</button>
+                <div class="header-buttons">
+                    <button id="settings-discard">破棄</button>
+                    <button id="settings-save">保存</button>
+                </div>
             </header>
             <div id="settings-body">
-                <section class="settings-section">
-                    <h3>天気設定</h3>
-                    <div class="settings-form">
-                        <div class="form-group">
-                            <label for="set-api-key">WeatherAPI APIキー</label>
-                            <input type="text" id="set-api-key" placeholder="APIキーを入力">
-                        </div>
-                        <div class="form-group">
-                            <label for="set-location">取得場所 (Location)</label>
-                            <input type="text" id="set-location" placeholder="例: Sapporo">
-                        </div>
-                    </div>
-                </section>
-
                 <section class="settings-section">
                     <h3>表示設定</h3>
                     <div class="settings-form">
@@ -68,10 +56,43 @@
                         <div class="form-group">
                             <label for="set-theme">カラーテーマ</label>
                             <select id="set-theme">
-                                <option value="default">デフォルト（ダークテーマ）</option>
+                                <option value="auto">システム設定に従う (自動)</option>
+                                <option value="default">ダークテーマ (寒色)</option>
                                 <option value="light">ライトテーマ</option>
-                                <option value="vitamin">ビタミン (暖色系)</option>
+                                <option value="vitamin">ダークテーマ (暖色)</option>
                             </select>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="settings-section">
+                    <h3>項目設定</h3>
+                    <div class="settings-form">
+                        <div class="form-group checkbox-group">
+                            <label><input type="checkbox" id="item-sec"> 秒を表示</label>
+                            <label><input type="checkbox" id="item-weather"> 天候情報全体</label>
+                            <div id="weather-sub-items" class="sub-group">
+                                <label><input type="checkbox" id="item-feels"> 体感温度</label>
+                                <label><input type="checkbox" id="item-humidity"> 湿度</label>
+                                <label><input type="checkbox" id="item-wind"> 風速</label>
+                                <label><input type="checkbox" id="item-uv"> UV指数</label>
+                                <label><input type="checkbox" id="item-precip"> 降水量</label>
+                                <label><input type="checkbox" id="item-pressure"> 気圧</label>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="settings-section">
+                    <h3>天気設定</h3>
+                    <div class="settings-form">
+                        <div class="form-group">
+                            <label for="set-api-key">WeatherAPI APIキー</label>
+                            <input type="text" id="set-api-key" placeholder="APIキーを入力">
+                        </div>
+                        <div class="form-group">
+                            <label for="set-location">取得場所 (Location)</label>
+                            <input type="text" id="set-location" placeholder="例: Sapporo">
                         </div>
                     </div>
                 </section>
@@ -89,10 +110,7 @@
                     </div>
                 </section>
             </div>
-            <footer id="settings-footer">
-                <button id="settings-save">保存して閉じる</button>
         </div>
-    </div>
     </div>
     <script src="./script.js" defer></script>
     <script>

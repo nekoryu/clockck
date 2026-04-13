@@ -6,7 +6,8 @@ document.addEventListener('DOMContentLoaded', () => {
         DISPLAY_TYPE: 'clockck_display_type',
         THEME: 'clockck_theme',
         WEATHER_CACHE: 'clockck_weather_cache',
-        WEATHER_CACHE_TIME: 'clockck_weather_cache_time'
+        WEATHER_CACHE_TIME: 'clockck_weather_cache_time',
+        VISIBLE_ITEMS: 'clockck_visible_items'
     };
 
     const getStore = (key) => {
@@ -15,9 +16,15 @@ document.addEventListener('DOMContentLoaded', () => {
         // デフォルト値
         if (key === STORAGE_KEYS.API_KEY) return 'a891eb341dae437fba441934252204';
         if (key === STORAGE_KEYS.LOCATION) return 'Sapporo';
+        if (key === STORAGE_KEYS.THEME) return 'auto';
+        if (key === STORAGE_KEYS.VISIBLE_ITEMS) return JSON.stringify({
+            sec: true, weather: true, feels: false, humidity: false, wind: false, uv: false, precip: false, pressure: false
+        });
         return '';
     };
     const setStore = (key, val) => localStorage.setItem(key, val);
+
+    const getVisibleItems = () => JSON.parse(getStore(STORAGE_KEYS.VISIBLE_ITEMS));
 
     // --- PWA判定 ---
     function isPWA() {
@@ -65,7 +72,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- 設定モーダル / フォーム制御 ---
     const settingsBtn = document.getElementById('settings-btn');
     const settingsModal = document.getElementById('settings-modal');
-    const settingsClose = document.getElementById('settings-close-top');
+    const settingsDiscard = document.getElementById('settings-discard');
     const settingsSave = document.getElementById('settings-save');
     
     const inputApiKey = document.getElementById('set-api-key');
@@ -73,8 +80,27 @@ document.addEventListener('DOMContentLoaded', () => {
     const selectDisplayType = document.getElementById('set-display-type');
     const selectTheme = document.getElementById('set-theme');
 
+    const cbSec = document.getElementById('item-sec');
+    const cbWeather = document.getElementById('item-weather');
+    const cbFeels = document.getElementById('item-feels');
+    const cbHumidity = document.getElementById('item-humidity');
+    const cbWind = document.getElementById('item-wind');
+    const cbUv = document.getElementById('item-uv');
+    const cbPrecip = document.getElementById('item-precip');
+    const cbPressure = document.getElementById('item-pressure');
+    const weatherSubItems = document.getElementById('weather-sub-items');
+
+    // 天気全体のトグルによってサブ項目を無効化
+    cbWeather.addEventListener('change', () => {
+        weatherSubItems.classList.toggle('disabled', !cbWeather.checked);
+    });
+
     const applyTheme = () => {
-        const theme = getStore(STORAGE_KEYS.THEME) || 'default';
+        let theme = getStore(STORAGE_KEYS.THEME) || 'auto';
+        if (theme === 'auto') {
+            theme = window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'default';
+        }
+
         // 管理対象のテーマクラス一覧
         const themeClasses = ['theme-light', 'theme-vitamin'];
         document.body.classList.remove(...themeClasses);
@@ -84,11 +110,30 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
+    // --- OSのテーマ設定変更を監視 ---
+    window.matchMedia('(prefers-color-scheme: light)').addEventListener('change', () => {
+        if ((getStore(STORAGE_KEYS.THEME) || 'auto') === 'auto') {
+            applyTheme();
+        }
+    });
+
+
     const loadSettings = () => {
         inputApiKey.value = getStore(STORAGE_KEYS.API_KEY);
         inputLocation.value = getStore(STORAGE_KEYS.LOCATION);
         selectDisplayType.value = getStore(STORAGE_KEYS.DISPLAY_TYPE) || 'lcd';
-        selectTheme.value = getStore(STORAGE_KEYS.THEME) || 'default';
+        selectTheme.value = getStore(STORAGE_KEYS.THEME) || 'auto';
+
+        const items = getVisibleItems();
+        cbSec.checked = items.sec;
+        cbWeather.checked = items.weather;
+        cbFeels.checked = items.feels;
+        cbHumidity.checked = items.humidity;
+        cbWind.checked = items.wind;
+        cbUv.checked = items.uv;
+        cbPrecip.checked = items.precip;
+        cbPressure.checked = items.pressure;
+        weatherSubItems.classList.toggle('disabled', !cbWeather.checked);
     };
 
     const openSettings = () => {
@@ -102,13 +147,27 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     settingsBtn.addEventListener('click', openSettings);
-    settingsClose.addEventListener('click', closeSettings);
+    settingsDiscard.addEventListener('click', closeSettings);
     settingsSave.addEventListener('click', () => {
         setStore(STORAGE_KEYS.API_KEY, inputApiKey.value);
         setStore(STORAGE_KEYS.LOCATION, inputLocation.value);
         setStore(STORAGE_KEYS.DISPLAY_TYPE, selectDisplayType.value);
         setStore(STORAGE_KEYS.THEME, selectTheme.value);
+
+        const items = {
+            sec: cbSec.checked,
+            weather: cbWeather.checked,
+            feels: cbFeels.checked,
+            humidity: cbHumidity.checked,
+            wind: cbWind.checked,
+            uv: cbUv.checked,
+            precip: cbPrecip.checked,
+            pressure: cbPressure.checked
+        };
+        setStore(STORAGE_KEYS.VISIBLE_ITEMS, JSON.stringify(items));
+
         closeSettings();
+        applyItemVisibility();
         getWeather(true); // 強制更新
         applyDisplayTypeEffect();
         applyTheme();
@@ -163,6 +222,17 @@ document.addEventListener('DOMContentLoaded', () => {
     });
     if (isPWA()) requestWakeLock();
 
+    // --- 項目表示適用 ---
+    function applyItemVisibility() {
+        const items = getVisibleItems();
+        const secArea = document.getElementById('seconds-area');
+        if (secArea) secArea.style.display = items.sec ? 'block' : 'none';
+
+        const weatherArea = document.getElementById('weather-area');
+        if (weatherArea) weatherArea.style.display = items.weather ? 'flex' : 'none';
+    }
+    applyItemVisibility();
+
     // --- 初期テーマ適用 ---
     applyTheme();
 
@@ -201,6 +271,49 @@ document.addEventListener('DOMContentLoaded', () => {
     setInterval(updateClock, 1000); // インジケーターがあるので1秒毎に更新
     updateClock();
 
+    // --- 天気描画 ---
+    function renderWeather(cur) {
+        const items = getVisibleItems();
+        if (!items.weather) return '';
+
+        const condText = cur.condition.text;
+        let icon = '';
+        if (condText.includes('雨')) icon = '☂';
+        else if (condText.includes('晴')) icon = '☀';
+        else if (condText.includes('曇') || condText.includes('雲')) icon = '☁';
+        else if (condText.includes('雪') || condText.includes('氷') || condText.includes('霙')) icon = '❄';
+        else if (condText.includes('雷')) icon = '⚡';
+        else if (condText.includes('霧') || condText.includes('霞')) icon = '🌫';
+
+        const temp = cur.temp_c.toFixed(1);
+        const u = (t) => `<span class="unit">${t}</span>`;
+        
+        let tempHtml = `${u('🌡')}${temp}${u('°C')}`;
+        if (items.feels) {
+            tempHtml += ` ${u('(体感')}${cur.feelslike_c.toFixed(1)}${u('°C)')}`;
+        }
+        let text = `${u(icon)}${condText} <span class="weather-item">${tempHtml}</span>`;
+
+        if (items.humidity) {
+            text += ` <span class="weather-item">${u('💧')}${cur.humidity}${u('%')}</span>`;
+        }
+        if (items.wind) {
+            const windMs = (cur.wind_kph / 3.6).toFixed(1);
+            text += ` <span class="weather-item">${u('🌬')}${windMs}${u('m/s')}</span>`;
+        }
+        if (items.uv) {
+            text += ` <span class="weather-item">${u('☀UV:')}${cur.uv}</span>`;
+        }
+        if (items.precip) {
+            text += ` <span class="weather-item">${u('☔')}${cur.precip_mm.toFixed(1)}${u('mm')}</span>`;
+        }
+        if (items.pressure) {
+            text += ` <span class="weather-item">${u('⏲')}${Math.round(cur.pressure_mb).toLocaleString()}${u('hPa')}</span>`;
+        }
+
+        return text;
+    }
+
     // --- 天気取得 (キャッシュ対応) ---
     async function getWeather(force = false) {
         const apiKey = getStore(STORAGE_KEYS.API_KEY);
@@ -219,8 +332,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // キャッシュ有効チェック (30分 = 1800000ms)
         if (!force && cacheData && (now - lastFetch < 1800000)) {
-            weatherElem.textContent = cacheData;
-            return;
+            try {
+                const parsedCache = JSON.parse(cacheData);
+                weatherElem.innerHTML = renderWeather(parsedCache);
+                return;
+            } catch (e) {
+                // パース失敗時は古いHTML形式のキャッシュとみなして再取得へ
+                console.warn('古いキャッシュ形式を検出しました。再取得します。');
+            }
         }
 
         const apiUrl = `https://api.weatherapi.com/v1/current.json?key=${apiKey}&q=${location}&lang=ja`;
@@ -229,23 +348,23 @@ document.addEventListener('DOMContentLoaded', () => {
             if (!res.ok) throw new Error();
             const data = await res.json();
             
-            const condText = data.current.condition.text;
-            let icon = '';
-            if (condText.includes('雨')) icon = '☂';
-            else if (condText.includes('晴')) icon = '☀';
-            else if (condText.includes('曇') || condText.includes('雲')) icon = '☁';
-            else if (condText.includes('雪') || condText.includes('氷') || condText.includes('霙')) icon = '❄';
-            else if (condText.includes('雷')) icon = '⚡';
-            else if (condText.includes('霧') || condText.includes('霞')) icon = '🌫';
-
-            const text = `${icon}${condText}  🌡${data.current.temp_c}°C  💧${data.current.humidity}%`;
+            const cur = data.current;
+            weatherElem.innerHTML = renderWeather(cur);
             
-            weatherElem.textContent = text;
-            setStore(STORAGE_KEYS.WEATHER_CACHE, text);
+            setStore(STORAGE_KEYS.WEATHER_CACHE, JSON.stringify(cur));
             setStore(STORAGE_KEYS.WEATHER_CACHE_TIME, now.toString());
         } catch (e) {
             console.error(e);
-            weatherElem.textContent = cacheData || '----';
+            try {
+                if (cacheData) {
+                    weatherElem.innerHTML = renderWeather(JSON.parse(cacheData));
+                } else {
+                    weatherElem.innerHTML = '----';
+                }
+            } catch (parseErr) {
+                // 古いHTMLキャッシュが残っている状態でエラーが起きた場合のフォールバック
+                weatherElem.innerHTML = cacheData || '----';
+            }
         }
     }
 
