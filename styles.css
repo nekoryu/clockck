@@ -415,8 +415,7 @@ body.dim {
 
     #datetime-area {
         flex-direction: column;
-        gap: 120px;
-        /* 時刻と日付群の間の余白をしっかり取る */
+        gap: 40px;
     }
 
     #clock {
@@ -427,8 +426,7 @@ body.dim {
         flex-direction: column;
         align-items: center;
         width: 100%;
-        gap: 25px;
-        /* 年号と月日は近づける */
+        gap: 10px;
     }
 
     #year-area {
@@ -442,8 +440,7 @@ body.dim {
     }
 
     #weather-area {
-        margin-top: 40px;
-        font-size: 75px;
+        margin-top: 0px;
         padding: 0 40px;
         line-height: 1.4;
     }

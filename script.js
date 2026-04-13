@@ -315,11 +315,11 @@ document.addEventListener('DOMContentLoaded', () => {
         const temp = cur.temp_c.toFixed(1);
         const u = (t) => `<span class="unit">${t}</span>`;
         
-        let tempHtml = `${u('🌡')}${temp}${u('°C')}`;
+        let text = `${u(icon)}${condText} <span class="weather-item">${u('🌡')}${temp}${u('°C')}</span>`;
+
         if (items.feels) {
-            tempHtml += ` ${u('(体感')}${cur.feelslike_c.toFixed(1)}${u('°C)')}`;
+            text += ` <span class="weather-item">${u('(体感')}${cur.feelslike_c.toFixed(1)}${u('°C)')}</span>`;
         }
-        let text = `${u(icon)}${condText} <span class="weather-item">${tempHtml}</span>`;
 
         if (items.humidity) {
             text += ` <span class="weather-item">${u('💧')}${cur.humidity}${u('%')}</span>`;
