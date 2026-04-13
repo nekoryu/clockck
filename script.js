@@ -173,6 +173,33 @@ document.addEventListener('DOMContentLoaded', () => {
         applyTheme();
     });
 
+    const btnReset = document.getElementById('settings-clear-cache');
+    if (btnReset) {
+        btnReset.addEventListener('click', async () => {
+            if (!confirm('全てのキャッシュ(ServiceWorker/天候等)と設定を破棄して再読み込みしますか？\n※APIキーなどの設定も初期化されます。')) return;
+            
+            // localStorage の初期化
+            localStorage.clear();
+            
+            // ServiceWorker の登録解除
+            if ('serviceWorker' in navigator) {
+                const registrations = await navigator.serviceWorker.getRegistrations();
+                for (let reg of registrations) {
+                    await reg.unregister();
+                }
+            }
+            
+            // Cache Storage (PWAアセット) の消去
+            if ('caches' in window) {
+                const keys = await caches.keys();
+                await Promise.all(keys.map(key => caches.delete(key)));
+            }
+            
+            // リロードして初期状態に戻す
+            window.location.reload(true);
+        });
+    }
+
     if (settingsModal) {
         settingsModal.addEventListener('click', (e) => {
             if (e.target === settingsModal) closeSettings();
