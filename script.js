@@ -5,6 +5,7 @@ document.addEventListener('DOMContentLoaded', () => {
         LOCATION: 'clockck_location',
         DISPLAY_TYPE: 'clockck_display_type',
         THEME: 'clockck_theme',
+        ASPECT_RATIO: 'clockck_aspect_ratio',
         WEATHER_CACHE: 'clockck_weather_cache',
         WEATHER_CACHE_TIME: 'clockck_weather_cache_time',
         VISIBLE_ITEMS: 'clockck_visible_items'
@@ -35,32 +36,64 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- スケーリング処理 ---
     const mainElement = document.querySelector('main');
+    // アスペクト比文字列から長辺 pxを返す
+    function getLongSidePx(ratio) {
+        switch (ratio) {
+            case '21:9': return 2520;
+            case '20:9': return 2400;
+            case '4:3':  return 1440;
+            case '16:9':
+            default:     return 1920;
+        }
+    }
+
     function updateScale() {
         if (!mainElement) return;
         const viewWidth = document.documentElement.clientWidth || window.innerWidth;
         const viewHeight = document.documentElement.clientHeight || window.innerHeight;
         if (viewWidth === 0 || viewHeight === 0) return;
 
+        const ratio = getStore(STORAGE_KEYS.ASPECT_RATIO) || '16:9';
+        const longSide = getLongSidePx(ratio);
+        const shortSide = 1080;
+
         let baseWidth, baseHeight;
         if (viewHeight > viewWidth) {
-            baseWidth = 1080; baseHeight = 2400;
+            // 縦画面: 短辺が横、長辺が縦
+            baseWidth = shortSide;
+            baseHeight = longSide;
         } else {
-            baseWidth = 2400; baseHeight = 1080;
+            // 横画面: 長辺が横、短辺が縦
+            baseWidth = longSide;
+            baseHeight = shortSide;
         }
 
-        let scaleX = viewWidth / baseWidth;
-        let scaleY = viewHeight / baseHeight;
+        // main 要素のサイズを確定
+        mainElement.style.width  = `${baseWidth}px`;
+        mainElement.style.height = `${baseHeight}px`;
 
         const type = getStore(STORAGE_KEYS.DISPLAY_TYPE);
         if (type === 'oled') {
             const pad = 400; // ±200px margin * 2
-            scaleX = viewWidth / (baseWidth + pad);
-            scaleY = viewHeight / (baseHeight + pad);
-            const translateX = (viewWidth - baseWidth * scaleX) / 2;
-            const translateY = (viewHeight - baseHeight * scaleY) / 2;
-            mainElement.style.transform = `translate(${translateX}px, ${translateY}px) scale(${scaleX}, ${scaleY})`;
+            // 短辺基準で統一スケールを算出（アスペクト比維持＋はみ出し防止）
+            const scale = Math.min(
+                viewWidth  / (baseWidth  + pad),
+                viewHeight / (baseHeight + pad)
+            );
+            // 余白を中央揃えで配置
+            const translateX = (viewWidth  - baseWidth  * scale) / 2;
+            const translateY = (viewHeight - baseHeight * scale) / 2;
+            mainElement.style.transform = `translate(${translateX}px, ${translateY}px) scale(${scale})`;
         } else {
-            mainElement.style.transform = `scale(${scaleX}, ${scaleY})`;
+            // 短辺基準で統一スケールを算出（アスペクト比維持＋はみ出し防止）
+            const scale = Math.min(
+                viewWidth  / baseWidth,
+                viewHeight / baseHeight
+            );
+            // 余白を中央揃えで配置
+            const translateX = (viewWidth  - baseWidth  * scale) / 2;
+            const translateY = (viewHeight - baseHeight * scale) / 2;
+            mainElement.style.transform = `translate(${translateX}px, ${translateY}px) scale(${scale})`;
         }
     }
 
@@ -89,6 +122,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const inputApiKey = document.getElementById('set-api-key');
     const inputLocation = document.getElementById('set-location');
     const selectDisplayType = document.getElementById('set-display-type');
+    const selectAspectRatio = document.getElementById('set-aspect-ratio');
     const selectTheme = document.getElementById('set-theme');
 
     const cbSec = document.getElementById('item-sec');
@@ -150,6 +184,7 @@ document.addEventListener('DOMContentLoaded', () => {
         inputApiKey.value = getStore(STORAGE_KEYS.API_KEY);
         inputLocation.value = getStore(STORAGE_KEYS.LOCATION);
         selectDisplayType.value = getStore(STORAGE_KEYS.DISPLAY_TYPE) || 'lcd';
+        selectAspectRatio.value = getStore(STORAGE_KEYS.ASPECT_RATIO) || '16:9';
         selectTheme.value = getStore(STORAGE_KEYS.THEME) || 'auto';
 
         const items = getVisibleItems();
@@ -181,6 +216,7 @@ document.addEventListener('DOMContentLoaded', () => {
         setStore(STORAGE_KEYS.API_KEY, inputApiKey.value);
         setStore(STORAGE_KEYS.LOCATION, inputLocation.value);
         setStore(STORAGE_KEYS.DISPLAY_TYPE, selectDisplayType.value);
+        setStore(STORAGE_KEYS.ASPECT_RATIO, selectAspectRatio.value);
         setStore(STORAGE_KEYS.THEME, selectTheme.value);
 
         const items = {
@@ -372,7 +408,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         if (items.wind) {
             const windMs = (cur.wind_kph / 3.6).toFixed(1);
-            text += ` <span class="weather-item">${u('🌬')}${windMs}${u('m/s')}</span>`;
+            text += ` <span class="weather-item">${u('💨')}${windMs}${u('m/s')}</span>`;
         }
         if (items.uv) {
             text += ` <span class="weather-item">${u('☀UV:')}${cur.uv}</span>`;
