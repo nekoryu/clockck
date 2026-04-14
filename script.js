@@ -364,7 +364,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         try {
             const yearStr = now.getFullYear();
-            const eraPart = new Intl.DateTimeFormat('ja-JP-u-ca-japanese', { era: 'long', year: 'numeric' }).format(now);
+            const eraPart = new Intl.DateTimeFormat('ja-JP-u-ca-japanese', { era: 'long', year: 'numeric' }).format(now).replace('年', '');
             if (yearElem) yearElem.textContent = yearStr;
             if (eraElem) eraElem.textContent = eraPart;
         } catch (e) { /* fallback */ }

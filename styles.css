@@ -173,6 +173,7 @@ main {
 
 #weather .unit {
     filter: brightness(0.95) hue-rotate(60deg);
+    font-size: smaller;
 }
 
 .weather-item {
