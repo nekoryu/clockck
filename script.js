@@ -164,7 +164,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         // 管理対象のテーマクラス一覧
-        const themeClasses = ['theme-light', 'theme-vitamin'];
+        const themeClasses = ['theme-light', 'theme-campfire'];
         document.body.classList.remove(...themeClasses);
 
         if (theme !== 'default') {
