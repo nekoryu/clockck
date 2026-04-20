@@ -8,7 +8,8 @@ document.addEventListener('DOMContentLoaded', () => {
         ASPECT_RATIO: 'clockck_aspect_ratio',
         WEATHER_CACHE: 'clockck_weather_cache',
         WEATHER_CACHE_TIME: 'clockck_weather_cache_time',
-        VISIBLE_ITEMS: 'clockck_visible_items'
+        VISIBLE_ITEMS: 'clockck_visible_items',
+        DIMMER_BRIGHTNESS: 'clockck_dimmer_brightness'
     };
 
     const getStore = (key) => {
@@ -21,6 +22,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (key === STORAGE_KEYS.VISIBLE_ITEMS) return JSON.stringify({
             sec: true, weather: true, feels: false, humidity: false, wind: false, uv: false, precip: false, pressure: false
         });
+        if (key === STORAGE_KEYS.DIMMER_BRIGHTNESS) return '60';
         return '';
     };
     const setStore = (key, val) => localStorage.setItem(key, val);
@@ -113,6 +115,13 @@ document.addEventListener('DOMContentLoaded', () => {
         } catch (err) { console.warn('Ambient Light Sensor 起動失敗:', err); }
     }
 
+    // --- ディマーモード適用 ---
+    const applyDimmerBrightness = (val) => {
+        const brightness = val || getStore(STORAGE_KEYS.DIMMER_BRIGHTNESS) || '60';
+        document.documentElement.style.setProperty('--dimmer-brightness', brightness);
+    };
+    applyDimmerBrightness();
+
     // --- 設定モーダル / フォーム制御 ---
     const settingsBtn = document.getElementById('settings-btn');
     const settingsModal = document.getElementById('settings-modal');
@@ -124,6 +133,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const selectDisplayType = document.getElementById('set-display-type');
     const selectAspectRatio = document.getElementById('set-aspect-ratio');
     const selectTheme = document.getElementById('set-theme');
+    const inputDimmerBrightness = document.getElementById('set-dimmer-brightness');
+    const dimmerBrightnessVal = document.getElementById('dimmer-brightness-val');
 
     const cbSec = document.getElementById('item-sec');
     const cbWeather = document.getElementById('item-weather');
@@ -157,6 +168,13 @@ document.addEventListener('DOMContentLoaded', () => {
         weatherSubItems.classList.toggle('disabled', !cbWeather.checked);
     });
 
+    // ディマーモードの輝度プレビュー
+    inputDimmerBrightness.addEventListener('input', () => {
+        const val = inputDimmerBrightness.value;
+        dimmerBrightnessVal.textContent = val;
+        applyDimmerBrightness(val);
+    });
+
     const applyTheme = () => {
         let theme = getStore(STORAGE_KEYS.THEME) || 'auto';
         if (theme === 'auto') {
@@ -186,6 +204,9 @@ document.addEventListener('DOMContentLoaded', () => {
         selectDisplayType.value = getStore(STORAGE_KEYS.DISPLAY_TYPE) || 'lcd';
         selectAspectRatio.value = getStore(STORAGE_KEYS.ASPECT_RATIO) || '16:9';
         selectTheme.value = getStore(STORAGE_KEYS.THEME) || 'auto';
+        const dimVal = getStore(STORAGE_KEYS.DIMMER_BRIGHTNESS) || '60';
+        inputDimmerBrightness.value = dimVal;
+        dimmerBrightnessVal.textContent = dimVal;
 
         const items = getVisibleItems();
         cbSec.checked = items.sec;
@@ -218,6 +239,7 @@ document.addEventListener('DOMContentLoaded', () => {
         setStore(STORAGE_KEYS.DISPLAY_TYPE, selectDisplayType.value);
         setStore(STORAGE_KEYS.ASPECT_RATIO, selectAspectRatio.value);
         setStore(STORAGE_KEYS.THEME, selectTheme.value);
+        setStore(STORAGE_KEYS.DIMMER_BRIGHTNESS, inputDimmerBrightness.value);
 
         const items = {
             sec: cbSec.checked,
